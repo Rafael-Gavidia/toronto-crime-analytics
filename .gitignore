@@ -1,0 +1,10 @@
+Plaintext
+# Environments
+venv/
+__pycache__/
+.pytest_cache/
+
+# Data (CRITICAL)
+data/
+*.csv
+*.xlsx
