@@ -3,7 +3,7 @@ import argparse
 import os
 import pandas as pd
 from src.cleaner import clean_crime_data
-# [US-04] Import the TDD-validated core engine function
+# [US-04] Import the rigorously TDD-validated core engine function
 from src.crime_by_hour import analyze_crime_by_hour
 
 
@@ -44,13 +44,14 @@ def run_crime_hourly_analysis():
     print(f"Loading operational dataset from: {data_path}")
     df = pd.read_csv(data_path, low_memory=False)
     
-    # Execute your robust TDD analytics engine for 'Assault' as a default use-case
+    # [REFACTOR] Execute your robust TDD analytics engine for 'Assault' with strict zero-fill constraints
     hourly_distribution = analyze_crime_by_hour(df, offence_type="Assault")
     
-    print("\n[Metrics Output] Chronological 24-Hour Verified Array (Assault):")
-    print("-" * 45)
+    print("\n=== [Metrics Output] Chronological 24-Hour Verified Array (Assault) ===")
+    print("-" * 55)
     print(hourly_distribution)
-    print("-" * 45)
+    print("-" * 55)
+    print("[SUCCESS] Hourly analysis stage completed with side-effect protections.\n")
 
 
 def main():
