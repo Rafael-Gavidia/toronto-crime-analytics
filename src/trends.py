@@ -57,6 +57,7 @@ def get_crime_trends(df: pd.DataFrame) -> pd.DataFrame:
         result = grouped
 
     # Sort strictly chronologically
+    # enforce chronological sorting by year then month number
     result = result.sort_values(["OCC_YEAR", "MONTH_NUM"]).reset_index(drop=True)
 
     return result
