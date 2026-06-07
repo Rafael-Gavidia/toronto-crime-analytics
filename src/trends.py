@@ -45,6 +45,7 @@ def get_crime_trends(df: pd.DataFrame) -> pd.DataFrame:
     )
 
     # Build a complete year-month grid to fill missing periods with 0
+    # zero-fill verified by test_trends_fills_missing_months_with_zero
     if not grouped.empty:
         years = range(int(grouped["OCC_YEAR"].min()), int(grouped["OCC_YEAR"].max()) + 1)
         all_periods = pd.DataFrame(
