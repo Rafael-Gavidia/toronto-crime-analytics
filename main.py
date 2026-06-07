@@ -5,6 +5,7 @@ import pandas as pd
 from src.cleaner import clean_crime_data
 # [US-04] Import the rigorously TDD-validated core engine function
 from src.crime_by_hour import analyze_crime_by_hour
+from src.trends import get_crime_trends, get_yearly_summary
 
 
 def run_data_cleaning():
@@ -14,6 +15,7 @@ def run_data_cleaning():
     df_cleaned = clean_crime_data(df)
     df_cleaned.to_csv("data/data_cleaned.csv", index=False)
     print("Cleaned data saved to 'data/data_cleaned.csv'")
+
 
 
 def run_feature_engineering():
@@ -54,6 +56,21 @@ def run_crime_hourly_analysis():
     print("[SUCCESS] Hourly analysis stage completed with side-effect protections.\n")
 
 
+
+def run_crime_trends():
+    """US-05: Pipeline for crime trends over time."""
+    print("Running crime trends analysis...")
+    df = pd.read_csv("data/data_cleaned.csv", low_memory=False)
+
+    print("\n--- Monthly Crime Trends ---")
+    trends = get_crime_trends(df)
+    print(trends.head(24))
+
+    print("\n--- Yearly Crime Summary ---")
+    yearly = get_yearly_summary(df)
+    print(yearly)
+
+
 def main():
     parser = argparse.ArgumentParser(description="Toronto Crime Analytics Pipeline")
 
@@ -63,6 +80,7 @@ def main():
         type=str,
         required=True,
         choices=["clean", "features", "analysis", "all"],
+        choices=["clean", "features", "trends", "train", "all"],
         help="Specify which stage of the project to run"
     )
 
@@ -78,6 +96,12 @@ def main():
         run_data_cleaning()
         run_feature_engineering()
         run_crime_hourly_analysis()  # Includes your analysis in the master end-to-end execution
+    elif args.stage == "trends":
+        run_crime_trends()
+    elif args.stage == "all":
+        run_data_cleaning()
+        run_feature_engineering()
+        run_crime_trends()
 
 
 if __name__ == "__main__":
