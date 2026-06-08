@@ -5,8 +5,8 @@ import pandas as pd
 from src.cleaner import clean_crime_data
 from src.crime_by_hour import analyze_crime_by_hour
 from src.trends import get_crime_trends, get_yearly_summary
-# [US-06] Import the core engine function for offence type distribution analysis
 from src.offence_distribution import calculate_offence_distribution
+from src.division import get_division_crime_counts, get_division_percentage
 
 
 def run_data_cleaning():
@@ -22,7 +22,6 @@ def run_feature_engineering():
     """US-03: Pipeline for feature engineering."""
     print("Extracting features...")
     df = pd.read_csv("data/data_cleaned.csv", low_memory=False)
-    # Placeholder for feature engineering logic from US-03
     df.to_csv("data/data_features.csv", index=False)
     print("Features saved to 'data/data_features.csv'")
 
@@ -53,10 +52,9 @@ def run_crime_trends():
 
 
 def run_offence_distribution(df):
-    """[US-06] Pipeline for Categorical Offence Type Distribution analysis."""
+    """US-06: Pipeline for Categorical Offence Type Distribution analysis."""
     print("\n--> Calculating Categorical Offence Distributions [US-06]...")
-    
-    # Verify the existence of CSI_CATEGORY column before running the core engine
+
     if 'CSI_CATEGORY' in df.columns:
         offence_dist = calculate_offence_distribution(df)
         print("-" * 60)
@@ -67,21 +65,33 @@ def run_offence_distribution(df):
         print("Warning: 'CSI_CATEGORY' column missing in the dataset. Skipping US-06.")
 
 
-0def main():
+def run_division_analysis(df):
+    """US-07: Pipeline for police division crime activity."""
+    print("\nRunning police division analysis [US-07]...")
+
+    print("\n--- Crime Count by Division ---")
+    counts = get_division_crime_counts(df)
+    print(counts)
+
+    print("\n--- Division Percentage Share ---")
+    percentages = get_division_percentage(df)
+    print(percentages)
+    print("[SUCCESS] US-07 Division analysis completed.\n")
+
+
+def main():
     parser = argparse.ArgumentParser(description="Toronto Crime Analytics Pipeline")
 
-    # Single integrated choices array supporting all team stages
     parser.add_argument(
         "--stage",
         type=str,
         required=True,
-        choices=["clean", "features", "analysis", "trends", "offence", "all"],
-        help="Specify which stage of the project to run (clean, features, analysis, trends, offence, all)"
+        choices=["clean", "features", "analysis", "trends", "offence", "division", "all"],
+        help="Specify which stage of the project to run"
     )
 
     args = parser.parse_args()
 
-    # Shared data loading logic optimized for different pipeline stages
     def load_operational_data():
         if os.path.exists("data/data_features.csv"):
             path = "data/data_features.csv"
@@ -92,32 +102,35 @@ def run_offence_distribution(df):
         print(f"Loading operational dataset from: {path}")
         return pd.read_csv(path, low_memory=False)
 
-    # Pipeline execution routing based on the selected stage
     if args.stage == "clean":
         run_data_cleaning()
-        
+
     elif args.stage == "features":
         run_feature_engineering()
-        
+
     elif args.stage == "analysis":
         df = load_operational_data()
         run_crime_hourly_analysis(df)
-        
+
     elif args.stage == "trends":
         run_crime_trends()
-        
+
     elif args.stage == "offence":
         df = load_operational_data()
         run_offence_distribution(df)
-        
+
+    elif args.stage == "division":
+        df = load_operational_data()
+        run_division_analysis(df)
+
     elif args.stage == "all":
-        # Master end-to-end pipeline execution flow
         run_data_cleaning()
         run_feature_engineering()
         df = load_operational_data()
         run_crime_hourly_analysis(df)
         run_crime_trends()
-        run_offence_distribution(df)  # US-06 integrated as the final analytical stage
+        run_offence_distribution(df)
+        run_division_analysis(df)
 
 
 if __name__ == "__main__":
