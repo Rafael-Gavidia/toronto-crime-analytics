@@ -25,6 +25,7 @@ def get_division_crime_counts(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
 
     # Flag invalid/missing division values as Unknown
+    # validate division string format
     valid_pattern = r"^D\d{2}$"
     df["DIVISION"] = df["DIVISION"].astype(str).str.strip()
     df["DIVISION"] = df["DIVISION"].where(
