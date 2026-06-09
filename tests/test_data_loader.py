@@ -1,15 +1,12 @@
 import pytest
 import pandas as pd
-# 1. THE NEW IMPORT
-from src.pipeline import CrimeDataPipeline
+from src.data_loader import load_dataset
 
 def test_load_dataset_success():
     """Validates that a correct file loads properly into a DataFrame."""
     # We use the sample data you just created for fast testing
     file_path = "data/sample_crime_data.csv"
-    
-    # 2. THE NEW CLASS CALL
-    df = CrimeDataPipeline().load_data(file_path)
+    df = load_dataset(file_path)
     
     assert isinstance(df, pd.DataFrame)
     assert not df.empty
@@ -18,8 +15,7 @@ def test_load_dataset_success():
 def test_load_dataset_file_not_found():
     """Validates that a missing file throws a FileNotFoundError."""
     with pytest.raises(FileNotFoundError):
-        # 3. THE NEW CLASS CALL
-        CrimeDataPipeline().load_data("data/fake_ghost_file.csv")
+        load_dataset("data/fake_ghost_file.csv")
 
 def test_load_dataset_invalid_schema(tmp_path):
     """Validates that a corrupted schema throws a ValueError."""
@@ -34,5 +30,4 @@ def test_load_dataset_invalid_schema(tmp_path):
 
     # The test passes if the specific ValueError is triggered
     with pytest.raises(ValueError, match="Corrupted schema"):
-        # 4. THE NEW CLASS CALL
-        CrimeDataPipeline().load_data(str(bad_file))
+        load_dataset(str(bad_file))

@@ -1,6 +1,6 @@
 import pandas as pd
 import pytest
-from src.pipeline import CrimeDataPipeline
+from src.cleaner import clean_crime_data
 
 
 @pytest.fixture
@@ -34,7 +34,7 @@ def test_tdd_green_phase_cleanup(mock_raw_data):
     """
     [TDD GREEN EVIDENCE] Проверяем, что после clean_crime_data все дефекты устранены.
     """
-    result = CrimeDataPipeline().clean_data(mock_raw_data)
+    result = clean_crime_data(mock_raw_data)
 
     # 1. Из 4 строк должна остаться ровно 1 валидная (первая)
     # Строка 2 (нули), Строка 3 (вне Торонто), Строка 4 (невалидная дата) — отфильтрованы
@@ -52,5 +52,5 @@ def test_tdd_green_phase_cleanup(mock_raw_data):
         "LAT_WGS84": [43.7], "LONG_WGS84": [-79.4],
         "LOCATION_TYPE": ["NSA"], "OCC_DATE": ["2024-01-01"]
     })
-    cleaned_nsa = CrimeDataPipeline().clean_data(df_nsa)
+    cleaned_nsa = clean_crime_data(df_nsa)
     assert cleaned_nsa["LOCATION_TYPE"].iloc[0] == "Unknown"
