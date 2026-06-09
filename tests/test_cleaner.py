@@ -1,7 +1,6 @@
 import pandas as pd
 import pytest
-from src.cleaner import clean_crime_data
-
+from src.pipeline import CrimeDataPipeline
 
 @pytest.fixture
 def mock_raw_data():
@@ -12,7 +11,6 @@ def mock_raw_data():
         "LOCATION_TYPE": ["Convenience Store", "Commercial", "NSA", "NSA"],
         "OCC_DATE": ["2024-01-01", "2024-01-02", "2024-01-03", "invalid-date-xyz"]
     })
-
 
 def test_tdd_red_phase_violations(mock_raw_data):
     """
@@ -29,15 +27,13 @@ def test_tdd_red_phase_violations(mock_raw_data):
     # 3. Дата является строкой, а не datetime
     assert not pd.api.types.is_datetime64_any_dtype(mock_raw_data["OCC_DATE"])
 
-
 def test_tdd_green_phase_cleanup(mock_raw_data):
     """
     [TDD GREEN EVIDENCE] Проверяем, что после clean_crime_data все дефекты устранены.
     """
-    result = clean_crime_data(mock_raw_data)
+    result = CrimeDataPipeline().clean_data(mock_raw_data)
 
     # 1. Из 4 строк должна остаться ровно 1 валидная (первая)
-    # Строка 2 (нули), Строка 3 (вне Торонто), Строка 4 (невалидная дата) — отфильтрованы
     assert len(result) == 1
 
     # 2. Проверка пространственного фильтра
@@ -52,5 +48,5 @@ def test_tdd_green_phase_cleanup(mock_raw_data):
         "LAT_WGS84": [43.7], "LONG_WGS84": [-79.4],
         "LOCATION_TYPE": ["NSA"], "OCC_DATE": ["2024-01-01"]
     })
-    cleaned_nsa = clean_crime_data(df_nsa)
+    cleaned_nsa = CrimeDataPipeline().clean_data(df_nsa)
     assert cleaned_nsa["LOCATION_TYPE"].iloc[0] == "Unknown"
