@@ -1,8 +1,7 @@
-# File: main.py
 import argparse
 import os
 import pandas as pd
-from src.cleaner import clean_crime_data
+from src.pipeline import CrimeDataPipeline
 from src.crime_by_hour import analyze_crime_by_hour
 from src.trends import get_crime_trends, get_yearly_summary
 from src.offence_distribution import calculate_offence_distribution
@@ -10,10 +9,13 @@ from src.division import get_division_crime_counts, get_division_percentage
 
 
 def run_data_cleaning():
-    """US-02: Pipeline for data cleaning."""
-    print("Running data cleaning...")
-    df = pd.read_csv("data/Toronto_Crime_Indicators.csv", low_memory=False)
-    df_cleaned = clean_crime_data(df)
+    """US-02 & SR-01: Object-Oriented Pipeline for data ingestion and cleaning."""
+    print("Running data cleaning pipeline...")
+    
+    # Initialize the class and run the end-to-end process
+    pipeline = CrimeDataPipeline("data/Toronto_Crime_Indicators.csv")
+    df_cleaned = pipeline.run()
+    
     df_cleaned.to_csv("data/data_cleaned.csv", index=False)
     print("Cleaned data saved to 'data/data_cleaned.csv'")
 
