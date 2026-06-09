@@ -62,6 +62,7 @@ def get_neighbourhood_rankings(df: pd.DataFrame, top_n: int = 10) -> pd.DataFram
     df = df.copy()
 
     # Remove placeholder neighbourhood values
+    # exclude Unknown and NSA placeholder neighbourhoods from ranking
     df = df[~df["NEIGHBOURHOOD_158"].isin(["Unknown", "NSA"])]
 
     if df.empty:
