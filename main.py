@@ -7,6 +7,8 @@ from src.trends import get_crime_trends, get_yearly_summary
 from src.offence_distribution import calculate_offence_distribution
 from src.division import get_division_crime_counts, get_division_percentage
 from src.neighbourhood import filter_valid_coordinates, get_neighbourhood_rankings
+# [US-10] Import the newly developed cross-divisional performance comparison engine
+from src.division_performance import calculate_division_performance
 
 
 def run_data_cleaning():
@@ -92,6 +94,21 @@ def run_neighbourhood_ranking(df):
     print("[SUCCESS] US-08 Neighbourhood ranking completed.\n")
 
 
+def run_division_performance_comparison(df):
+    """US-10: Pipeline for Police Division Performance Comparison."""
+    print("\n--> Executing Police Division Performance Comparison Engine [US-10]...")
+    
+    if 'DIVISION' in df.columns:
+        # Generate flattened summary dataframe including volume and localized market share metrics
+        performance_df = calculate_division_performance(df)
+        print("-" * 60)
+        print(performance_df.to_string(index=False))
+        print("-" * 60)
+        print("[SUCCESS] US-10 Police Division Performance comparison completed and verified.\n")
+    else:
+        print("Warning: 'DIVISION' column missing in the dataset. Skipping US-10.")
+
+
 def main():
     parser = argparse.ArgumentParser(description="Toronto Crime Analytics Pipeline")
 
@@ -99,7 +116,8 @@ def main():
         "--stage",
         type=str,
         required=True,
-        choices=["clean", "features", "analysis", "trends", "offence", "division", "neighbourhood", "all"],
+        # [US-10] Added 'division-compare' option to the stage choices
+        choices=["clean", "features", "analysis", "trends", "offence", "division", "neighbourhood", "division-compare", "all"],
         help="Specify which stage of the project to run"
     )
 
@@ -140,6 +158,11 @@ def main():
         df = load_operational_data()
         run_neighbourhood_ranking(df)
 
+    # [US-10] Execution branch for standalone analysis routing
+    elif args.stage == "division-compare":
+        df = load_operational_data()
+        run_division_performance_comparison(df)
+
     elif args.stage == "all":
         run_data_cleaning()
         run_feature_engineering()
@@ -149,6 +172,8 @@ def main():
         run_offence_distribution(df)
         run_division_analysis(df)
         run_neighbourhood_ranking(df)
+        # [US-10] Integrated as the final comprehensive analytical checkpoint
+        run_division_performance_comparison(df)
 
 
 if __name__ == "__main__":
