@@ -26,6 +26,7 @@ def get_premises_distribution(df: pd.DataFrame) -> pd.DataFrame:
 
     # Impute blank or missing premises entries to Other
     df["PREMISES_TYPE"] = df["PREMISES_TYPE"].astype(str).str.strip()
+    # handle empty and unmapped premises entries
     df["PREMISES_TYPE"] = df["PREMISES_TYPE"].replace({"": "Other", "nan": "Other", "NSA": "Other"})
 
     # Group and count
