@@ -6,16 +6,15 @@ from src.crime_by_hour import analyze_crime_by_hour
 from src.trends import get_crime_trends, get_yearly_summary
 from src.offence_distribution import calculate_offence_distribution
 from src.division import get_division_crime_counts, get_division_percentage
+from src.neighbourhood import filter_valid_coordinates, get_neighbourhood_rankings
+from src.premises import get_premises_distribution, get_premises_percentage
 
 
 def run_data_cleaning():
     """US-02 & SR-01: Object-Oriented Pipeline for data ingestion and cleaning."""
     print("Running data cleaning pipeline...")
-    
-    # Initialize the class and run the end-to-end process
     pipeline = CrimeDataPipeline("data/Toronto_Crime_Indicators.csv")
     df_cleaned = pipeline.run()
-    
     df_cleaned.to_csv("data/data_cleaned.csv", index=False)
     print("Cleaned data saved to 'data/data_cleaned.csv'")
 
@@ -81,6 +80,33 @@ def run_division_analysis(df):
     print("[SUCCESS] US-07 Division analysis completed.\n")
 
 
+def run_neighbourhood_ranking(df):
+    """US-08: Pipeline for neighbourhood crime ranking."""
+    print("\nRunning neighbourhood ranking analysis [US-08]...")
+
+    df_filtered = filter_valid_coordinates(df)
+    print(f"\nValid coordinate rows: {len(df_filtered)}")
+
+    print("\n--- Top 10 Neighbourhoods by Crime Count ---")
+    rankings = get_neighbourhood_rankings(df_filtered, top_n=10)
+    print(rankings)
+    print("[SUCCESS] US-08 Neighbourhood ranking completed.\n")
+
+
+def run_premises_analysis(df):
+    """US-11: Pipeline for premises type analysis."""
+    print("\nRunning premises type analysis [US-11]...")
+
+    print("\n--- Crime Count by Premises Type ---")
+    distribution = get_premises_distribution(df)
+    print(distribution)
+
+    print("\n--- Premises Percentage Share ---")
+    percentages = get_premises_percentage(df)
+    print(percentages)
+    print("[SUCCESS] US-11 Premises analysis completed.\n")
+
+
 def main():
     parser = argparse.ArgumentParser(description="Toronto Crime Analytics Pipeline")
 
@@ -88,7 +114,7 @@ def main():
         "--stage",
         type=str,
         required=True,
-        choices=["clean", "features", "analysis", "trends", "offence", "division", "all"],
+        choices=["clean", "features", "analysis", "trends", "offence", "division", "neighbourhood", "premises", "all"],
         help="Specify which stage of the project to run"
     )
 
@@ -125,6 +151,14 @@ def main():
         df = load_operational_data()
         run_division_analysis(df)
 
+    elif args.stage == "neighbourhood":
+        df = load_operational_data()
+        run_neighbourhood_ranking(df)
+
+    elif args.stage == "premises":
+        df = load_operational_data()
+        run_premises_analysis(df)
+
     elif args.stage == "all":
         run_data_cleaning()
         run_feature_engineering()
@@ -133,6 +167,8 @@ def main():
         run_crime_trends()
         run_offence_distribution(df)
         run_division_analysis(df)
+        run_neighbourhood_ranking(df)
+        run_premises_analysis(df)
 
 
 if __name__ == "__main__":

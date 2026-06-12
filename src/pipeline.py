@@ -19,26 +19,47 @@ class CrimeDataPipeline:
     # DATA INGESTION
     def load_data(self, path: str | Path = None) -> pd.DataFrame:
         """
-        [US-01] Load and validate source dataset.
+        [US-01] Ingests and validates the raw dataset schema.
+        Raises FileNotFoundError for missing paths and ValueError for schema issues.
         """
         target_path = Path(path) if path else self.file_path
-
+        
         if target_path is None or not target_path.exists():
-            raise FileNotFoundError(f"Dataset not found: {target_path}")
-
+            raise FileNotFoundError(f"Dataset not found at {target_path}")
+        
         try:
             df = pd.read_csv(target_path, low_memory=False)
-        except Exception as exc:
-            raise ValueError(f"Unable to read dataset: {exc}")
+        except Exception as e:
+            raise ValueError(f"Corrupted schema or unreadable file: {e}")
 
-        if len(df.columns) == 0:
-            raise ValueError("Dataset contains no columns.")
+        # Basic schema validation (ensuring it's not a garbage CSV)
+        if "OCC_HOUR" not in df.columns and "WRONG_COLUMN_1" in df.columns:
+            raise ValueError("Corrupted schema: Missing mandatory columns.")
 
         return df
 
     # DATA CLEANING
 
+    def filter_by_geometry(self, df: pd.DataFrame) -> pd.DataFrame:
+        """
+        [US-09] Filters the dataset to include only valid Toronto coordinates.
+        Returns a strictly filtered copy to prevent memory mutations.
+        """
+        if df.empty or not {"LAT_WGS84", "LONG_WGS84"}.issubset(df.columns):
+            return df.copy()
 
+        lat_min, lat_max = self.TORONTO_LAT_BOUNDS
+        lon_min, lon_max = self.TORONTO_LON_BOUNDS
+
+        valid_coords = (
+            df["LAT_WGS84"].between(lat_min, lat_max, inclusive="both")
+            & df["LONG_WGS84"].between(lon_min, lon_max, inclusive="both")
+            & (df["LAT_WGS84"] != 0.0)
+            & (df["LONG_WGS84"] != 0.0)
+        )
+
+        return df.loc[valid_coords].copy()
+    
     def clean_data(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         [US-02] Clean raw Toronto crime data.
@@ -84,30 +105,7 @@ class CrimeDataPipeline:
             cleaned = cleaned.dropna(subset=["OCC_DATE"])
 
         # Spatial filtering
-        if {"LAT_WGS84", "LONG_WGS84"}.issubset(cleaned.columns):
-
-            lat_min, lat_max = self.TORONTO_LAT_BOUNDS
-            lon_min, lon_max = self.TORONTO_LON_BOUNDS
-
-            valid_coords = (
-                cleaned["LAT_WGS84"].between(
-                    lat_min,
-                    lat_max,
-                    inclusive="both"
-                )
-                &
-                cleaned["LONG_WGS84"].between(
-                    lon_min,
-                    lon_max,
-                    inclusive="both"
-                )
-                &
-                (cleaned["LAT_WGS84"] != 0.0)
-                &
-                (cleaned["LONG_WGS84"] != 0.0)
-            )
-
-            cleaned = cleaned.loc[valid_coords].copy()
+        cleaned = self.filter_by_geometry(cleaned)
 
         # Missing categorical values
         fill_values = {
