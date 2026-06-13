@@ -21,3 +21,12 @@ def analyze_crime_by_hour(df: pd.DataFrame, offence_type: str = None) -> pd.Seri
     validated_hourly_series = hourly_counts.reindex(full_day_hours, fill_value=0)
     
     return validated_hourly_series
+
+def get_crimes_by_hour(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    [US-14] Integration wrapper — returns DataFrame for dashboard views.
+    """
+    series = analyze_crime_by_hour(df)
+    result = series.reset_index()
+    result.columns = ["OCC_HOUR", "incident_count"]
+    return result
