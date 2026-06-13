@@ -122,3 +122,14 @@ def show_premises(df: pd.DataFrame):
         )
 
         st.plotly_chart(bar_fig, use_container_width=True)
+import streamlit as st
+from src.premises import get_premises_distribution, get_premises_percentage
+
+def show_premises():
+
+    st.title("Premises")
+
+    st.write(
+        "Premises placeholder."
+    )
+    

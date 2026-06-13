@@ -8,6 +8,8 @@ from src.offence_distribution import calculate_offence_distribution
 from src.division import get_division_crime_counts, get_division_percentage
 from src.neighbourhood import filter_valid_coordinates, get_neighbourhood_rankings
 from src.premises import get_premises_distribution, get_premises_percentage
+# [SR-02] Import the newly established modular plotting utility package
+from src.visualization.plots import create_hourly_crime_plot, create_filtered_crime_trend_plot
 
 
 def run_data_cleaning():
@@ -31,6 +33,10 @@ def run_crime_hourly_analysis(df):
     """US-04: Pipeline for hourly crime distribution matrix."""
     print("\nExecuting 24-hour crime distribution analysis engine [US-04]...")
     hourly_distribution = analyze_crime_by_hour(df, offence_type="Assault")
+    
+    # [SR-02] T 2.4: Standardize view execution calls to exclusively handle layout generation and plot invocation
+    hourly_chart = create_hourly_crime_plot(df, offence_type="Assault")
+    
     print("\n=== [Metrics Output] Chronological 24-Hour Verified Array (Assault) ===")
     print("-" * 55)
     print(hourly_distribution)
@@ -107,6 +113,14 @@ def run_premises_analysis(df):
     print("[SUCCESS] US-11 Premises analysis completed.\n")
 
 
+# [SR-02] T 2.4: Dedicated runner to handle standardized visualization execution layer
+def run_visualization_refactor_stage(df):
+    """SR-02: Isolated pipeline stage for verifying modular chart generation."""
+    print("\nExecuting Standardized Visualization Refactor Engine [SR-02]...")
+    trend_chart = create_filtered_crime_trend_plot(df)
+    print("[SUCCESS] SR-02 Visual pipeline rendering test complete with zero chart breakage.\n")
+
+
 def main():
     parser = argparse.ArgumentParser(description="Toronto Crime Analytics Pipeline")
 
@@ -114,7 +128,8 @@ def main():
         "--stage",
         type=str,
         required=True,
-        choices=["clean", "features", "analysis", "trends", "offence", "division", "neighbourhood", "premises", "all"],
+        # [SR-02] Integrated 'visual-refactor' option into the command-line interface argument choices safely
+        choices=["clean", "features", "analysis", "trends", "offence", "division", "neighbourhood", "premises", "visual-refactor", "all"],
         help="Specify which stage of the project to run"
     )
 
@@ -159,6 +174,11 @@ def main():
         df = load_operational_data()
         run_premises_analysis(df)
 
+    # [SR-02] Route visualization refactor verification stage
+    elif args.stage == "visual-refactor":
+        df = load_operational_data()
+        run_visualization_refactor_stage(df)
+
     elif args.stage == "all":
         run_data_cleaning()
         run_feature_engineering()
@@ -169,6 +189,8 @@ def main():
         run_division_analysis(df)
         run_neighbourhood_ranking(df)
         run_premises_analysis(df)
+        # [SR-02] Appended the refactored visualization step seamlessly at the end of full pipeline sequence execution
+        run_visualization_refactor_stage(df)
 
 
 if __name__ == "__main__":

@@ -84,3 +84,13 @@ def show_neighbourhood(df: pd.DataFrame):
             margin=dict(l=0, r=0, t=40, b=80),
         )
         st.plotly_chart(line_fig, use_container_width=True)
+import streamlit as st
+from src.neighbourhood import get_neighbourhood_rankings
+
+def show_neighbourhood():
+
+    st.title("Neighbourhood")
+
+    st.write(
+        "Neighbourhood placeholder."
+    )

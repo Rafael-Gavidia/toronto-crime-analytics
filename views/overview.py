@@ -249,3 +249,12 @@ def show_overview(df: pd.DataFrame) -> None:
 
     with col_right:
         _build_hourly_dow_heatmap(df)
+import streamlit as st
+
+def show_overview():
+
+    st.title("Overview placeholder")
+
+    st.write(
+        "Overview placeholder."
+    )
