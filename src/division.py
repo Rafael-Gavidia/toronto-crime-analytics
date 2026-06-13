@@ -24,15 +24,12 @@ def get_division_crime_counts(df: pd.DataFrame) -> pd.DataFrame:
 
     df = df.copy()
 
-    # Flag invalid/missing division values as Unknown
-    # validate division string format
-    valid_pattern = r"^D\d{2}$"
+    valid_pattern = r"^D\d{2,3}$"
     df["DIVISION"] = df["DIVISION"].astype(str).str.strip()
     df["DIVISION"] = df["DIVISION"].where(
         df["DIVISION"].str.match(valid_pattern), other="Unknown"
     )
 
-    # Group and count
     result = (
         df.groupby("DIVISION")
         .size()
@@ -63,3 +60,58 @@ def get_division_percentage(df: pd.DataFrame) -> pd.DataFrame:
     counts["percentage"] = (counts["incident_count"] / total * 100).round(2)
 
     return counts
+
+
+def get_division_yearly_trends(
+    df: pd.DataFrame,
+    year_from: int = 2020,
+    year_to: int = 2026,
+) -> pd.DataFrame:
+    """
+    Computes crime incident counts per division per year for a given year range.
+    Used for a Division x Year heatmap.
+
+    - Filters to valid division strings only (excludes Unknown).
+    - Filters to the specified year range inclusive.
+    - Pivots into a matrix: rows = DIVISION, columns = OCC_YEAR.
+
+    Args:
+        df: Cleaned DataFrame containing DIVISION and OCC_YEAR columns.
+        year_from: Start year (inclusive).
+        year_to: End year (inclusive).
+
+    Returns:
+        pd.DataFrame pivot table with DIVISION as index and years as columns.
+        Values are incident counts (0 where no data).
+    """
+    required = {"DIVISION", "OCC_YEAR"}
+    if df.empty or not required.issubset(df.columns):
+        return pd.DataFrame()
+
+    df = df.copy()
+
+    valid_pattern = r"^D\d{2,3}$"
+    df["DIVISION"] = df["DIVISION"].astype(str).str.strip()
+    df = df[df["DIVISION"].str.match(valid_pattern)]
+
+    df = df[df["OCC_YEAR"].between(year_from, year_to)]
+
+    if df.empty:
+        return pd.DataFrame()
+
+    counts = (
+        df.groupby(["DIVISION", "OCC_YEAR"])
+        .size()
+        .reset_index(name="incident_count")
+    )
+
+    pivot = (
+        counts.pivot(index="DIVISION", columns="OCC_YEAR", values="incident_count")
+        .fillna(0)
+        .astype(int)
+    )
+
+    # Sort rows by total incidents descending so busiest divisions appear at top
+    pivot = pivot.loc[pivot.sum(axis=1).sort_values(ascending=False).index]
+
+    return pivot

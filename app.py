@@ -7,7 +7,66 @@ from views.division import show_division
 from views.premises import show_premises
 
 st.set_page_config(page_title="Toronto Crime Analytics", layout="wide")
-st.title("Toronto Crime Analytics Dashboard")
+#st.title("Toronto Crime Analytics Dashboard")
+st.markdown("""
+<style>
+:root {
+    --primary-color: #4a4a4a !important;
+}
+
+/* Sidebar */
+[data-testid="stSidebar"] {
+    background-color: #f5f5f5;
+}
+
+[data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3 {
+    color: #2c2c2c;
+}
+
+/* ==================== RADIO BUTTONS ==================== */
+div[data-baseweb="radio"] [role="radio"][aria-checked="true"] > div:first-child {
+    border-color: #4a4a4a !important;
+    background-color: #4a4a4a !important;
+}
+
+div[data-baseweb="radio"] [role="radio"][aria-checked="true"] > div:first-child > div {
+    background-color: #ffffff !important;
+}
+
+div[data-baseweb="radio"] label[aria-checked="true"] {
+    color: #2c2c2c !important;
+    font-weight: 600 !important;
+}
+
+div[data-baseweb="slider"] div[role="slider"] {
+    background-color: #4a4a4a !important;
+    border-color: #4a4a4a !important;
+}
+
+div[data-baseweb="slider"] div[role="progressbar"] > div {
+    background-color: #4a4a4a !important;
+}
+
+div[data-baseweb="slider"] div[style*="background-color: rgb"] {
+    background-color: #4a4a4a !important;
+}
+
+[data-testid="stSlider"] div[style*="color"] {
+    color: #4a4a4a !important;
+}
+
+/* Min / Max */
+div[data-testid="stTickBarMin"], div[data-testid="stTickBarMax"] {
+    color: #4a4a4a !important;
+}
+
+span[data-baseweb="tag"] {
+    background-color: #4a4a4a !important;
+    color: white !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
 
 from src.data_cache import get_cached_dataframe
 df = get_cached_dataframe()
