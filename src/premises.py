@@ -11,10 +11,10 @@ def _clean_premises(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
     df["PREMISES_TYPE"] = df["PREMISES_TYPE"].astype(str).str.strip()
     df["PREMISES_TYPE"] = df["PREMISES_TYPE"].replace(
-        {v: "Other" for v in PLACEHOLDER_VALUES}
+        {"": "Other", "nan": "Other", "NSA": "Other"}
     )
+    df = df[df["PREMISES_TYPE"] != "Unknown"]
     return df
-
 
 def get_premises_distribution(df: pd.DataFrame) -> pd.DataFrame:
     """
