@@ -1,5 +1,6 @@
 import streamlit as st
-
+# [SR-02] Import the newly established modular plotting utility package into the central application
+from src.visualization.plots import create_filtered_crime_trend_plot, create_filtered_premises_plot
 from views.overview import show_overview
 from views.crime_by_hour import show_crime_by_hour
 from views.neighbourhood import show_neighbourhood
