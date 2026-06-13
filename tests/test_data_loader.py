@@ -6,7 +6,7 @@ from src.pipeline import CrimeDataPipeline
 def test_load_dataset_success():
     """Validates that a correct file loads properly into a DataFrame."""
     # We use the sample data you just created for fast testing
-    file_path = "data/sample_crime_data.csv"
+    file_path = "data/data_cleaned.csv"
     
     # 2. THE NEW CLASS CALL
     df = CrimeDataPipeline().load_data(file_path)

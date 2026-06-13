@@ -10,12 +10,11 @@ from src.crime_by_hour import (
     get_crimes_weekday_vs_weekend,
 )
 
-YELLOW_LIME_COLORSCALE = [
-    
+YELLOW_LIME_HEATMAP_COLORSCALE = [
     [0.0,  "#fffde7"],  # very light yellow
     [0.33, "#fff176"],  # soft yellow
     [0.66, "#d4e157"],  # yellow-lime
-    [1.0,  "#7cb342"],
+    [1.0,  "#7cb342"],  # deep lime green
 ]
 
 DOW_SHORT = {
@@ -37,7 +36,7 @@ def _build_polar(df: pd.DataFrame) -> None:
         width=[15] * 24,
         marker=dict(
             color=data["incident_count"],
-            colorscale=YELLOW_LIME_COLORSCALE,
+            colorscale=YELLOW_LIME_HEATMAP_COLORSCALE,
             showscale=False,
             line=dict(color="white", width=1),
         ),
@@ -106,7 +105,7 @@ def _build_hour_dow_heatmap(df: pd.DataFrame) -> None:
         z=pivot.values,
         x=[f"{h}h" for h in pivot.columns],
         y=y_labels,
-        colorscale=YELLOW_LIME_COLORSCALE,
+        colorscale=YELLOW_LIME_HEATMAP_COLORSCALE,
         showscale=False,
         hoverinfo="text",
         text=hover_text,
@@ -145,7 +144,7 @@ def _build_weekday_vs_weekend(df: pd.DataFrame) -> None:
         y=weekday["avg_incidents"],
         mode="lines+markers",
         name="Weekday",
-        line=dict(color="#badc3d", width=2.5),
+        line=dict(color="#92c848", width=2.5),
         marker=dict(size=6),
         hovertemplate="Hour: %{x:02d}:00<br>Avg incidents: %{y:,.1f}<extra>Weekday</extra>",
     ))
@@ -155,7 +154,7 @@ def _build_weekday_vs_weekend(df: pd.DataFrame) -> None:
         y=weekend["avg_incidents"],
         mode="lines+markers",
         name="Weekend",
-        line=dict(color="#9cf072", width=2.5, dash="dash"),
+        line=dict(color="#a8e360", width=2.5, dash="dash"),
         marker=dict(size=6),
         hovertemplate="Hour: %{x:02d}:00<br>Avg incidents: %{y:,.1f}<extra>Weekend</extra>",
     ))
@@ -189,13 +188,3 @@ def show_crime_by_hour(df: pd.DataFrame) -> None:
 
     st.markdown("---")
     _build_weekday_vs_weekend(df)
-import streamlit as st
-from src.crime_by_hour import analyze_crime_by_hour
-
-def show_crime_by_hour():
-
-    st.title("Crime by Hour")
-
-    st.write(
-        "Crime by Hour analytics placeholder."
-    )
