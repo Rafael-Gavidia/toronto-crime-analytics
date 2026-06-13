@@ -3,7 +3,7 @@ import streamlit as st
 from pathlib import Path
 from src.pipeline import CrimeDataPipeline
 
-DATA_PATH = Path("data/Toronto_Crime_Indicators.csv")
+DATA_PATH = Path("data/data_cleaned.csv")
 
 @st.cache_data
 def get_cached_dataframe(path: str = str(DATA_PATH)):
